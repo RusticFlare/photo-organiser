@@ -19,17 +19,16 @@ class Organise : CliktCommand(help = "Copy SOURCE to DEST, or multiple SOURCE(s)
     override fun run() {
         source.walkTopDown().asSequence()
             .filter { it.isFile }
-            .groupBy { it.dateTaken }
-            .mapKeys { (dateTaken, _) -> target.getSubFolderFor(dateTaken) }
-            .forEach { (destinationFolder, files) -> files.forEach { it.copyInTo(destinationFolder) } }
+            .forEach { file -> file.moveInTo(target.getSubFolderFor(file.dateTaken)) }
     }
 
 }
 
-private fun File.copyInTo(destinationFolder: File) {
+private fun File.moveInTo(destinationFolder: File) {
     val destinationFile = destinationFolder.resolve(name)
     if (destinationFile.doesNotExist()) {
         copyTo(destinationFile)
+        delete()
     }
 }
 
