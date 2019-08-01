@@ -36,8 +36,13 @@ private fun File.doesNotExist() = !exists()
 
 private fun File.getSubFolderFor(date: LocalDate): File {
     return resolve("${date.year}")
-        .resolve("${date.monthValue} - ${date.month.getDisplayName(FULL, ENGLISH)}")
-        .resolve("${date.dayOfMonth}")
+        .resolve("${date.monthValue.withTwoDigits()} - ${date.month.getDisplayName(FULL, ENGLISH)}")
+        .resolve(date.dayOfMonth.withTwoDigits())
+}
+
+private fun Int.withTwoDigits() = when (this) {
+    in 1..9 -> "0$this"
+    else -> "$this"
 }
 
 private val File.dateTaken: LocalDate
