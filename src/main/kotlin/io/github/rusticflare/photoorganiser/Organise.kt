@@ -19,7 +19,8 @@ class Organise : CliktCommand(help = "Copy SOURCE to DEST, or multiple SOURCE(s)
     override fun run() {
         source.walkTopDown().asSequence()
             .filter { it.isFile }
-            .forEach { file -> file.moveInTo(target.getSubFolderFor(file.dateTaken)) }
+            .forEach { file -> try {file.copyInTo(target.getSubFolderFor(file.dateTaken)) } catch (exception: Exception) {
+                println("${file.name} : ${exception::class.simpleName} ${exception.message}")} }
     }
 
 }
@@ -29,6 +30,13 @@ private fun File.moveInTo(destinationFolder: File) {
     if (destinationFile.doesNotExist()) {
         copyTo(destinationFile)
         delete()
+    }
+}
+
+private fun File.copyInTo(destinationFolder: File) {
+    val destinationFile = destinationFolder.resolve(name)
+    if (destinationFile.doesNotExist()) {
+        copyTo(destinationFile)
     }
 }
 
