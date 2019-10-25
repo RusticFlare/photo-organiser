@@ -44,11 +44,11 @@ private fun File.doesNotExist() = !exists()
 
 private fun File.getSubFolderFor(date: LocalDate): File {
     return resolve("${date.year}")
-        .resolve("${date.monthValue.withTwoDigits()} - ${date.month.getDisplayName(FULL, ENGLISH)}")
-        .resolve(date.dayOfMonth.withTwoDigits())
+        .resolve("${date.monthValue.toTwoDigitString()} - ${date.month.getDisplayName(FULL, ENGLISH)}")
+        .resolve(date.dayOfMonth.toTwoDigitString())
 }
 
-private fun Int.withTwoDigits() = when (this) {
+private fun Int.toTwoDigitString() = when (this) {
     in 1..9 -> "0$this"
     else -> "$this"
 }
