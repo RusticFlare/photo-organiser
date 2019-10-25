@@ -61,7 +61,7 @@ private val File.dateTaken: LocalDate
             .toLocalDate()
     }
 
-fun Date.toLocalDate(): LocalDate {
+private fun Date.toLocalDate(): LocalDate {
     return java.sql.Date(time).toLocalDate()
 }
 
