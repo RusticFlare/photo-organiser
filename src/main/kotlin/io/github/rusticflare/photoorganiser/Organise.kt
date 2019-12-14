@@ -11,32 +11,43 @@ import java.time.format.TextStyle.FULL
 import java.util.Date
 import java.util.Locale.ENGLISH
 
-class Organise : CliktCommand(help = "Copy SOURCE to DEST, or multiple SOURCE(s) to directory DEST.") {
+class Organise : CliktCommand(help = "<WIP> Copy SOURCE to DEST, or multiple SOURCE(s) to directory DEST.") {
 
     private val source by argument().file(exists = true, fileOkay = false)
     private val target by argument().file(fileOkay = false)
 
+    private val destinationFolders = mutableSetOf<File>()
+
     override fun run() {
-        source.walkTopDown().asSequence()
+        source.walk()
             .filter { it.isFile }
-            .forEach { file -> try {file.copyInTo(target.getSubFolderFor(file.dateTaken)) } catch (exception: Exception) {
-                println("${file.name} : ${exception::class.simpleName} ${exception.message}")} }
+            .forEach { file -> file.copyToTargetFolder() }
+
+        logDestinationFolders()
     }
 
-}
-
-private fun File.moveInTo(destinationFolder: File) {
-    val destinationFile = destinationFolder.resolve(name)
-    if (destinationFile.doesNotExist()) {
-        copyTo(destinationFile)
-        delete()
+    private fun logDestinationFolders() {
+        println("Photos were imported to:")
+        destinationFolders
+            .map { it.absolutePath }
+            .sorted()
+            .forEach { println(it) }
     }
-}
 
-private fun File.copyInTo(destinationFolder: File) {
-    val destinationFile = destinationFolder.resolve(name)
-    if (destinationFile.doesNotExist()) {
-        copyTo(destinationFile)
+    private fun File.copyToTargetFolder() {
+        try {
+            this.copyInTo(target.getSubFolderFor(dateTaken))
+        } catch (exception: Exception) {
+            println("Copy failed <$name> : ${exception::class.simpleName} ${exception.message}")
+        }
+    }
+
+    private fun File.copyInTo(destinationFolder: File) {
+        val destinationFile = destinationFolder.resolve(name)
+        if (destinationFile.doesNotExist()) {
+            destinationFolders.add(destinationFolder)
+            copyTo(destinationFile)
+        }
     }
 }
 
