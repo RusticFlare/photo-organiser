@@ -61,19 +61,16 @@ private fun File.getSubFolderFor(date: LocalDate): File {
 
 private fun Int.toTwoDigitString() = when (this) {
     in 1..9 -> "0$this"
-    else -> "$this"
+    in 10..31 -> "$this"
+    else -> throw IllegalArgumentException("Number must be between 1 and 31 (inclusive)")
 }
 
 private val File.dateTaken: LocalDate
-    get() {
-        return ImageMetadataReader.readMetadata(this)
-            .getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)
-            .getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)
-            .toLocalDate()
-    }
+    get() = ImageMetadataReader.readMetadata(this)
+        .getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)
+        .getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)
+        .toLocalDate()
 
-private fun Date.toLocalDate(): LocalDate {
-    return java.sql.Date(time).toLocalDate()
-}
+private fun Date.toLocalDate() = java.sql.Date(time).toLocalDate()
 
 fun main(args: Array<String>) = Organise().main(args)
