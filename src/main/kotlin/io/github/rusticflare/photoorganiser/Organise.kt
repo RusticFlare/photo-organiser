@@ -7,9 +7,12 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.TextStyle.FULL
 import java.util.Date
 import java.util.Locale.ENGLISH
+
+fun main(args: Array<String>) = Organise().main(args)
 
 class Organise : CliktCommand(help = "<WIP> Copy SOURCE to DEST, or multiple SOURCE(s) to directory DEST.") {
 
@@ -36,7 +39,7 @@ class Organise : CliktCommand(help = "<WIP> Copy SOURCE to DEST, or multiple SOU
 
     private fun File.copyToTargetFolder() {
         try {
-            this.copyInTo(target.getSubFolderFor(dateTaken))
+            copyInTo(target.getSubFolderFor(dateTaken))
         } catch (exception: Exception) {
             println("Copy failed <$name> : ${exception::class.simpleName} ${exception.message}")
         }
@@ -68,9 +71,7 @@ private fun Int.toTwoDigitString() = when (this) {
 private val File.dateTaken: LocalDate
     get() = ImageMetadataReader.readMetadata(this)
         .getFirstDirectoryOfType(ExifSubIFDDirectory::class.java)
-        .getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)
+        .dateOriginal
         .toLocalDate()
 
-private fun Date.toLocalDate() = java.sql.Date(time).toLocalDate()
-
-fun main(args: Array<String>) = Organise().main(args)
+private fun Date.toLocalDate() = LocalDate.ofInstant(toInstant(), ZoneId.systemDefault())
