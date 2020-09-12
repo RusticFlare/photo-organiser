@@ -37,12 +37,10 @@ class Organise : CliktCommand(help = "<WIP> Copy SOURCE to DEST, or multiple SOU
             .forEach { println(it) }
     }
 
-    private fun File.copyToTargetFolder() {
-        try {
-            copyInTo(target.getSubFolderFor(dateTaken))
-        } catch (exception: Exception) {
-            println("Copy failed <$name> : ${exception::class.simpleName} ${exception.message}")
-        }
+    private fun File.copyToTargetFolder() = try {
+        copyInTo(target.getSubFolderFor(dateTaken))
+    } catch (exception: Exception) {
+        println("Copy failed <$name> : ${exception::class.simpleName} ${exception.message}")
     }
 
     private fun File.copyInTo(destinationFolder: File) {
@@ -56,11 +54,10 @@ class Organise : CliktCommand(help = "<WIP> Copy SOURCE to DEST, or multiple SOU
 
 private fun File.doesNotExist() = !exists()
 
-private fun File.getSubFolderFor(date: LocalDate): File {
-    return resolve("${date.year}")
+private fun File.getSubFolderFor(date: LocalDate) =
+    resolve("${date.year}")
         .resolve("${date.monthValue.toTwoDigitString()} - ${date.month.getDisplayName(FULL, ENGLISH)}")
         .resolve(date.dayOfMonth.toTwoDigitString())
-}
 
 private fun Int.toTwoDigitString() = when (this) {
     in 1..9 -> "0$this"
