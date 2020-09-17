@@ -14,19 +14,22 @@ import java.util.Locale.ENGLISH
 
 fun main(args: Array<String>) = Organise().main(args)
 
-class Organise : CliktCommand(help = "<WIP> Copy SOURCE to DEST, or multiple SOURCE(s) to directory DEST.") {
+class Organise : CliktCommand(help = "Copy the photos in SOURCE to a date taken file structure in TARGET") {
 
-    private val source by argument().file(exists = true, fileOkay = false)
-    private val target by argument().file(fileOkay = false)
+    private val source by argument().file(mustExist = true, canBeFile = false)
+    private val target by argument().file(canBeFile = false)
 
     private val destinationFolders = mutableSetOf<File>()
 
     override fun run() {
+        copyFiles()
+        logDestinationFolders()
+    }
+
+    private fun copyFiles() {
         source.walk()
             .filter { it.isFile }
-            .forEach { file -> file.copyToTargetFolder() }
-
-        logDestinationFolders()
+            .forEach { it.copyToTargetFolder() }
     }
 
     private fun logDestinationFolders() {
@@ -38,26 +41,18 @@ class Organise : CliktCommand(help = "<WIP> Copy SOURCE to DEST, or multiple SOU
     }
 
     private fun File.copyToTargetFolder() = try {
-        copyInTo(target.getSubFolderFor(dateTaken))
+        val destinationFolder = target.getSubFolderFor(dateTaken)
+        copyTo(destinationFolder)
+        destinationFolders.add(destinationFolder)
+    } catch (ignored: FileAlreadyExistsException) {
     } catch (exception: Exception) {
-        println("Copy failed <$name> : ${exception::class.simpleName} ${exception.message}")
-    }
-
-    private fun File.copyInTo(destinationFolder: File) {
-        val destinationFile = destinationFolder.resolve(name)
-        if (destinationFile.doesNotExist()) {
-            destinationFolders.add(destinationFolder)
-            copyTo(destinationFile)
-        }
+        println("Failed to copy file <$name> : ${exception::class.simpleName} ${exception.message}")
     }
 }
 
-private fun File.doesNotExist() = !exists()
-
-private fun File.getSubFolderFor(date: LocalDate) =
-    resolve("${date.year}")
-        .resolve("${date.monthValue.toTwoDigitString()} - ${date.month.getDisplayName(FULL, ENGLISH)}")
-        .resolve(date.dayOfMonth.toTwoDigitString())
+private fun File.getSubFolderFor(date: LocalDate) = resolve("${date.year}")
+    .resolve("${date.monthValue.toTwoDigitString()} - ${date.month.getDisplayName(FULL, ENGLISH)}")
+    .resolve(date.dayOfMonth.toTwoDigitString())
 
 private fun Int.toTwoDigitString() = when (this) {
     in 1..9 -> "0$this"
