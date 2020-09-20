@@ -34,16 +34,21 @@ class Organise : CliktCommand(help = "Copy the photos in SOURCE to a date taken 
     }
 
     private fun logDestinationFolders() {
-        echo("Photos were imported to:")
-        destinationFolders
-            .map { it.absolutePath }
-            .sorted()
-            .forEach { println(it) }
+        when {
+            destinationFolders.isNotEmpty() -> {
+                echo("Photos were imported to:")
+                destinationFolders
+                    .map { it.absolutePath }
+                    .sorted()
+                    .forEach { echo(it) }
+            }
+            else -> echo("No new photos were imported.")
+        }
     }
 
     private fun File.copyToTargetFolder() = try {
         val destinationFolder = target.getSubFolderFor(dateTaken)
-        copyTo(destinationFolder)
+        copyTo(destinationFolder.resolve(name))
         destinationFolders.add(destinationFolder)
     } catch (ignored: FileAlreadyExistsException) {
     } catch (exception: Exception) {

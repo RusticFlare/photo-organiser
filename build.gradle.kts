@@ -23,5 +23,5 @@ tasks.withType<KotlinCompile>() {
 }
 
 application {
-    mainClassName = "MainKt"
+    mainClassName = "io.github.rusticflare.photoorganiser.MainKt"
 }
