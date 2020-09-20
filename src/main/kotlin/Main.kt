@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.types.file
 import java.io.File
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.TextStyle.FULL
 import java.util.Date
@@ -33,7 +34,7 @@ class Organise : CliktCommand(help = "Copy the photos in SOURCE to a date taken 
     }
 
     private fun logDestinationFolders() {
-        println("Photos were imported to:")
+        echo("Photos were imported to:")
         destinationFolders
             .map { it.absolutePath }
             .sorted()
@@ -46,7 +47,7 @@ class Organise : CliktCommand(help = "Copy the photos in SOURCE to a date taken 
         destinationFolders.add(destinationFolder)
     } catch (ignored: FileAlreadyExistsException) {
     } catch (exception: Exception) {
-        println("Failed to copy file <$name> : ${exception::class.simpleName} ${exception.message}")
+        echo("Failed to copy file <$name> : ${exception::class.simpleName} ${exception.message}")
     }
 }
 
@@ -66,4 +67,4 @@ private val File.dateTaken: LocalDate
         .dateOriginal
         .toLocalDate()
 
-private fun Date.toLocalDate() = LocalDate.ofInstant(toInstant(), ZoneId.systemDefault())
+private fun Date.toLocalDate() = LocalDateTime.ofInstant(toInstant(), ZoneId.systemDefault()).toLocalDate()
